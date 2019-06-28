@@ -6,7 +6,7 @@ from sqlalchemy.sql.sqltypes import TIMESTAMP,VARCHAR
 import numpy as np
 import pandas as pd
 import json
-import settings
+
 
 #from iotfunctions.base import BaseTransformer
 from iotfunctions.base import BasePreload
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 PACKAGE_URL = 'git+https://github.com/fe01134/fun-bi@'
 
 
-class AssetHTTPPreload(BasePreload):
+class BIAssetHTTPPreload(BasePreload):
     '''
     Do a HTTP request as a preload activity. Load results of the get into the Entity Type time series table.
     HTTP request is experimental
@@ -378,14 +378,26 @@ class AssetHTTPPreload(BasePreload):
         '''
         # define arguments that behave as function inputs
         inputs = []
+        inputs.append(ui.UISingle(name='username',
+                              datatype=str,
+                              description='Username for Building Insignts Instance',
+                              tags=['TEXT'],
+                              required=True
+                              ))
+        inputs.append(ui.UISingle(name='password',
+                              datatype=str,
+                              description='Password for Building Insignts Instance',
+                              tags=['TEXT'],
+                              required=True
+                              ))
         inputs.append(ui.UISingle(name='request',
                               datatype=str,
-                              description='comma separated list of entity ids',
+                              description='HTTP Request type',
                               values=['GET','POST','PUT','DELETE']
                               ))
         inputs.append(ui.UISingle(name='url',
                                   datatype=str,
-                                  description='request url',
+                                  description='request url use internal_test',
                                   tags=['TEXT'],
                                   required=True
                                   ))
