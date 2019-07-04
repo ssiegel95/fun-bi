@@ -2,16 +2,20 @@ import json
 import logging
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, func
 from iotfunctions import bif
-from custom.functions import AssetHTTPPreload
+from custom.functions import BIAssetHTTPPreload
 from iotfunctions.metadata import EntityType
 from iotfunctions.db import Database
 from iotfunctions.enginelog import EngineLogging
-import settings
+from custom import settings
 
 EngineLogging.configure_console_logging(logging.DEBUG)
 
-# replace with a credentials dictionary or provide a credentials file
-with open('credentials_beta.json', encoding='utf-8') as F:
+'''
+# Replace with a credentials dictionary or provide a credentials
+# Explore > Usage > Watson IOT Platform Analytics > Copy to clipboard
+# Past contents in a json file.
+'''
+with open('credentials_staging.json', encoding='utf-8') as F:
 #with open('credentials_think2019.json', encoding='utf-8') as F:
 #with open('credentials_dev.json', encoding='utf-8') as F:
     credentials = json.loads(F.read())
@@ -20,37 +24,34 @@ with open('credentials_beta.json', encoding='utf-8') as F:
 Developing Test Pipelines
 -------------------------
 When creating a set of functions you can test how they these functions will
-work together by creating a test pipeline. You can also connect the test
-pipeline to real entity data so that you can what the actual results that the
-function will deliver.
+work together by creating a test pipeline.
 '''
 
+
 '''
-A database object is our connection to the mother ship
+Create a database object to access Watson IOT Platform Analytics DB.
 '''
 db = Database(credentials = credentials)
 db_schema = None #  set if you are not using the default
 
 '''
 To do anything with IoT Platform Analytics, you will need one or more entity type.
-You can create entity types through the IoT Platform or using the python API.
-When defining an entity type, you can describe the raw input data items for the
-entity type, as well as the functions , constants and granularities that apply to it.
-The "widgets" entity type below has 3 input data items. Dataitems are denoted by the
-SqlAlchemy column objects company_code, temp and pressure.
-It also has a function EntityDataGenerator
-The keyword args dict specifies extra properties. The database schema is only
-needed if you are not using the default schema. You can also rename the timestamp.
+You can create entity types through the IoT Platform or using the python API as shown below.
+The database schema is only needed if you are not using the default schema. You can also rename the timestamp.
 '''
-entity_name = 'BryanBuildings'
+entity_name = 'TestBuildings'
 db_schema = None  # replace if you are not using the default schema
 db.drop_table(entity_name, schema = db_schema)
+
 # Credentials to access Building Insights API.
 BI_USERNAME = settings.BI_USERNAME
 BI_PASSWORD = settings.BI_PASSWORD
+BI_TENANT_ID = settings.BI_TENANT_ID
+
 print("BI_Credentials")
 print(BI_USERNAME)
 print(BI_PASSWORD)
+print(BI_TENANT_ID)
 
 entity = EntityType(entity_name,db,
                     Column('building',String(50)),
@@ -59,10 +60,10 @@ entity = EntityType(entity_name,db,
                     Column('energy_unit',String(50)),
                     Column('energy_trend',String(50)),
                     Column('energy_trend_status',String(50)),
-                    AssetHTTPPreload( username = BI_USERNAME,
+                    BIAssetHTTPPreload( username = BI_USERNAME,
                                     password = BI_PASSWORD,
                                     request='GET',
-                                    url='internal_test',
+                                    url=BI_TENANT_ID,
                                     output_item = 'http_preload_done'),
                     bif.PythonExpression(expression='df["energy_value"]*df["energy_compare_percent"]',
                                          output_name = 'volume'),
@@ -80,7 +81,7 @@ To also register the functions and constants associated with the entity type, sp
 'publish_kpis' = True.
 '''
 entity.register(raise_error=False)
-db.register_functions([AssetHTTPPreload])
+db.register_functions([BIAssetHTTPPreload])
 
 '''
 To test the execution of kpi calculations defined for the entity type locally
@@ -94,33 +95,8 @@ entity.exec_local_pipeline()
 '''
 view entity data
 '''
-
 df = db.read_table(table_name=entity_name, schema=db_schema)
 print(df.head())
 
 
-'''
-The initial test used an internal test to produce data. Now we will use an actual rest service.
-Use the script "test_local_rest_service.py" to run a local service.
-
-
-entity_name = 'test_http_preload'
-db.drop_table(entity_name, schema = db_schema)
-entity = EntityType(entity_name,db,
-                    Column('company_code',String(50)),
-                    Column('temp',Float()),
-                    Column('pressure', Float()),
-                    sample.HTTPPreload(request='GET',
-                                    url='http://localhost:8080/',
-                                    output_item = 'http_preload_done'),
-                    bif.PythonExpression(expression='df["temp"]*df["pressure"]',
-                                         output_name = 'volume'),
-                    **{
-                      '_timestamp' : 'evt_timestamp',
-                      '_db_schema' : db_schema
-                      })
-
-entity.exec_local_pipeline()
-'''
-
-print ( 'Done registering  entity %s '  %db.register_functions([AssetHTTPPreload]) )
+print ( 'Done registering  entity %s '  %db.register_functions([BIAssetHTTPPreload]) )

@@ -48,14 +48,14 @@ class BIAssetHTTPPreload(BasePreload):
 
         super().__init__(dummy_items=[],output_item = output_item)
 
-        # create an instance variable with the same name as each arg
+        # create an instance variable with the IBM IOT Platform Analytics Service Function input arguments.
 
         self.username = username
         logging.debug('self.username %s' %self.username)
         self.password = password
         logging.debug('self.password %s' %self.password)
-        self.url = url
-        logging.debug('self.url %s' %self.url)
+        self.tenant = url
+        logging.debug('tenantid self.tenant %s' %self.tenant)
         self.request = request
         logging.debug('self.request %s' %self.request)
         self.headers = headers
@@ -69,8 +69,10 @@ class BIAssetHTTPPreload(BasePreload):
     def refreshToken (self ):
 
         logging.debug("refreshing bearer token")
-        uri = "https://iotbi272-kitt.mybluemix.net/api/v1/user/activity/login"
+        uri = "https://" + self.tenant + "-kitt.mybluemix.net/api/v1/user/activity/login"
         header = { 'Content-Type': 'application/json'}
+        logging.debug( "self.username %s " %self.username )
+        logging.debug( "self.password %s " %self.password )
         body = { 'username': self.username,
                 'password' : self.password
                 }
@@ -149,7 +151,7 @@ class BIAssetHTTPPreload(BasePreload):
 
             for etype in energy_data_options:
                 logging.debug("getEnergy type %s " %etype  )
-                uri = "https://iotbi272-agg.mybluemix.net/api/v1/building/energy/" + etype
+                uri = "https://" + self.tenant + "-agg.mybluemix.net/api/v1/building/energy/" + etype
                 logging.debug("uri %s" %uri)
                 req = self.db.http.request('GET',
                                  uri,
@@ -192,7 +194,7 @@ class BIAssetHTTPPreload(BasePreload):
           logging.debug("Getting list of buildings")
           header = {}
           #uri = "https://iotbi272-kitt.mybluemix.net/api/v1/graph/iotbi272/instance/iotbi272"
-          uri = "https://iotbi272-kitt.mybluemix.net/api/v1/graph/iotbi272/instance/iotbi272"
+          uri = "https://" + self.tenant + "-kitt.mybluemix.net/api/v1/graph/iotbi272/instance/"+ self.tenant
           auth_str = 'Bearer '+ self.token
           logging.debug(str(auth_str))
           #header = { 'Authorization':  }
@@ -219,7 +221,7 @@ class BIAssetHTTPPreload(BasePreload):
         #header = { 'Authorization':  }
         header['Authorization'] = auth_str
         body = {}
-        uri = "https://iotbi272-agg.mybluemix.net/api/v1/dtl/floors"
+        uri = "https://" + self.tenant + "-agg.mybluemix.net/api/v1/dtl/floors"
         #uri = "https://iotbi272-agg.mybluemix.net/api/v1/dtl/floors?buildingName=" + building['id'] + displayName="true"
         #uri = "https://iotbi272-agg.mybluemix.net/api/v1/dtl/FootFallByFloor?buildingName=" + building['id']
         req = self.db.http.request('GET',
@@ -257,79 +259,69 @@ class BIAssetHTTPPreload(BasePreload):
 
         schema = entity_type._db_schema
 
-        # There is a a special test "url" called internal_test
-        # Create a dict containing random data when using this
-        if self.url == 'internal_test':
-            logging.debug('refresh token %s' %self.refreshToken() )
-            buildings = self.getBuildings()
-            for building in buildings:
-                logging.debug('building name %s' %building )
+        #  "url" is the tenantid for Building Insights that is used to build the uri to call the Building Insights Rest service.
+        logging.debug('refresh token %s' %self.refreshToken() )
+        buildings = self.getBuildings()
+        for building in buildings:
+            logging.debug('building name %s' %building )
 
-            rows = len(buildings)
-            logging.debug('rows %s ' %rows)
-            response_data = {}
-            (metrics,dates,categoricals,others) = self.db.get_column_lists_by_type(
-                table = table,
-                schema= schema,
-                exclude_cols = []
-            )
-            for m in metrics:
-                logging.debug('metrics %s ' %m)
-                response_data[m] = np.random.normal(0,1,rows)
-                logging.debug('metrics data %s ' %response_data[m])
+        rows = len(buildings)
+        logging.debug('rows %s ' %rows)
+        response_data = {}
+        (metrics,dates,categoricals,others) = self.db.get_column_lists_by_type(
+            table = table,
+            schema= schema,
+            exclude_cols = []
+        )
+        for m in metrics:
+            logging.debug('metrics %s ' %m)
+            response_data[m] = np.random.normal(0,1,rows)
+            logging.debug('metrics data %s ' %response_data[m])
 
-            for d in dates:
-                logging.debug('dates %s ' %d)
-                response_data[d] = dt.datetime.utcnow() - dt.timedelta(seconds=15)
-                logging.debug('dates data %s ' %response_data[d])
+        for d in dates:
+            logging.debug('dates %s ' %d)
+            response_data[d] = dt.datetime.utcnow() - dt.timedelta(seconds=15)
+            logging.debug('dates data %s ' %response_data[d])
 
-            '''
-            Get building energy usage
-            '''
-            metrics_value, metrics_unit, metrics_compare_percent, metrics_trend, metrics_trend_status = self.getEnergy ( buildings = buildings)
+        '''
+        # Create Numpy array using Building Insights energy usage data
+        '''
+        metrics_value, metrics_unit, metrics_compare_percent, metrics_trend, metrics_trend_status = self.getEnergy ( buildings = buildings)
 
-            logging.debug("length metrics_value %d" %len(metrics_value) )
-            logging.debug("length metrics_unit %d" %len(metrics_unit) )
-            logging.debug("length metrics_compare_percent %d" %len(metrics_compare_percent) )
-            logging.debug("length metrics_trend %d" %len(metrics_trend) )
-            logging.debug("length metrics_trend_status %d" %len(metrics_trend_status) )
-            logging.debug("length buildings %d" %len(buildings) )
-            response_data['energy_value'] = np.array( metrics_value )
-            response_data['energy_unit'] = np.array( metrics_unit )
-            response_data['energy_compare_percent'] = np.array( metrics_compare_percent )
-            response_data['energy_trend'] = np.array( metrics_trend )
-            response_data['energy_trend_status'] = np.array( metrics_trend_status )
-            response_data['building'] = np.array(buildings)
-            response_data['devicetype'] = np.array(buildings)
-            response_data['logicalinterface_id'] = np.array(buildings)
-            response_data['eventtype'] = np.array(buildings)
-            response_data['deviceid'] = np.array(buildings)
-            response_data['format'] = np.array(buildings)
-            response_data['logicalinterface_id'] = np.array(buildings)
+        logging.debug("length metrics_value %d" %len(metrics_value) )
+        logging.debug("length metrics_unit %d" %len(metrics_unit) )
+        logging.debug("length metrics_compare_percent %d" %len(metrics_compare_percent) )
+        logging.debug("length metrics_trend %d" %len(metrics_trend) )
+        logging.debug("length metrics_trend_status %d" %len(metrics_trend_status) )
+        logging.debug("length buildings %d" %len(buildings) )
+        response_data['energy_value'] = np.array( metrics_value )
+        response_data['energy_unit'] = np.array( metrics_unit )
+        response_data['energy_compare_percent'] = np.array( metrics_compare_percent )
+        response_data['energy_trend'] = np.array( metrics_trend )
+        response_data['energy_trend_status'] = np.array( metrics_trend_status )
+        response_data['building'] = np.array(buildings)
+        response_data['devicetype'] = np.array(buildings)
+        response_data['logicalinterface_id'] = np.array(buildings)
+        response_data['eventtype'] = np.array(buildings)
+        response_data['deviceid'] = np.array(buildings)
+        response_data['format'] = np.array(buildings)
+        response_data['logicalinterface_id'] = np.array(buildings)
 
-        # make an http request
-        else:
-            response = self.db.http.request(self.request,
-                                       self.url,
-                                       body=encoded_body,
-                                       headers=self.headers)
-            response_data = response.data.decode('utf-8')
-            response_data = json.loads(response_data)
-
+        '''
+        # Create a timeseries dataframe with data received Building Insights
+        '''
         logging.debug('response_data used to create dataframe ===' )
         logging.debug( response_data)
         df = pd.DataFrame(data=response_data)
         logging.debug('Generated DF from response_data ===' )
         logging.debug( df.head() )
-
-        # align dataframe with data received
-
-        # use supplied column map to rename columns
         df = df.rename(self.column_map, axis='columns')
-
         logging.debug('ReMapped DF ===' )
         logging.debug( df.head() )
-        # fill in missing columns with nulls
+
+        '''
+        # Fill in missing columns with nulls
+        '''
         required_cols = self.db.get_column_names(table = table, schema=schema)
         logging.debug('required_cols %s' %required_cols )
         missing_cols = list(set(required_cols) - set(df.columns))
@@ -350,12 +342,16 @@ class BIAssetHTTPPreload(BasePreload):
                 else:
                     df[m] = None
 
-        # remove columns that are not required
+        '''
+        # Remove columns that are not required
+        '''
         df = df[required_cols]
         logging.debug('DF stripped to only required columns ===' )
         logging.debug( df.head() )
 
-        # write the dataframe to the database table
+        '''
+        # Write the dataframe to the IBM IOT Platform database table
+        '''
         self.write_frame(df=df,table_name=table)
         kwargs ={
             'table_name' : table,
@@ -366,11 +362,12 @@ class BIAssetHTTPPreload(BasePreload):
                                  msg='Wrote data to table',
                                  log_method=logger.debug,
                                  **kwargs)
-
         return True
 
-
-
+    '''
+    # Create the IOT Platform Function User Interfact input arguements used to connect to the external REST Service.
+    # These could be used to connect with any Rest Service to get IOT Data or any other data to include in your dashboards.
+    '''
     @classmethod
     def build_ui(cls):
         '''

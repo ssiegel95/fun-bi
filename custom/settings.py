@@ -74,6 +74,9 @@ try:
     print(BI_USERNAME)
     BI_PASSWORD = os.environ.get("BI_PASSWORD")
     print(BI_PASSWORD)
+    BI_TENANT_ID = os.environ.get("BI_TENANT_ID")
+    print(BI_TENANT_ID)
     print("Environment Variables Loaded Successfully")
+
 except Exception as ex:
     print("ERROR: Missing Required Environment Variables")
