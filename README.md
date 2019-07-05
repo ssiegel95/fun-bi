@@ -10,7 +10,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 The intended audience for this Code Pattern is application developers and other stakeholders who wish to utilize the power of Watson IOT Platform Monitoring Dashboard to quickly and effectively monitor any asset to ensure availability, utilization and efficiency.
 
-![architecture](architecture.png)
+![architecture](./images/architecture.png)
 
 #  Components
 
@@ -30,7 +30,7 @@ The intended audience for this Code Pattern is application developers and other 
 3. Deploy function
 4. Schedule the function to collect asset data
 5. Create a Monitoring Dashboard to manage the asset
-6. View the Monitoring Dashboard with Building Energy Consumption.
+6. View the Monitoring Dashboard with Building Energy Consumption
 
 # Prerequisites
 
@@ -187,7 +187,8 @@ Explore > Entity Types > Buildings > click gear top right > manage dashboards > 
 Choose file  ./json/Staging-Dashboard.json
 ```
 * Save changes
-```save
+```
+save
 ```
 
 ## 6. View Dashboard
