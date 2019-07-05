@@ -16,7 +16,7 @@ EngineLogging.configure_console_logging(logging.DEBUG)
 # Past contents in a json file.
 '''
 with open('credentials_staging.json', encoding='utf-8') as F:
-#with open('credentials_think2019.json', encoding='utf-8') as F:
+#with open('credentials.json', encoding='utf-8') as F:
 #with open('credentials_dev.json', encoding='utf-8') as F:
     credentials = json.loads(F.read())
 
@@ -39,7 +39,7 @@ To do anything with IoT Platform Analytics, you will need one or more entity typ
 You can create entity types through the IoT Platform or using the python API as shown below.
 The database schema is only needed if you are not using the default schema. You can also rename the timestamp.
 '''
-entity_name = 'TestBuildings'
+entity_name = 'Buildings'
 db_schema = None  # replace if you are not using the default schema
 db.drop_table(entity_name, schema = db_schema)
 
@@ -76,7 +76,8 @@ entity = EntityType(entity_name,db,
 '''
 When creating an EntityType object you will need to specify the name of the entity, the database
 object that will contain entity data
-After creating an EntityType you will need to register it so that it visible in the UI.
+
+After creating an EntityType you will need to register it so that it visible in the Add Data to Entity Function UI.
 To also register the functions and constants associated with the entity type, specify
 'publish_kpis' = True.
 '''
@@ -85,7 +86,8 @@ db.register_functions([BIAssetHTTPPreload])
 
 '''
 To test the execution of kpi calculations defined for the entity type locally
-use 'test_local_pipeline'.
+use this function.
+
 A local test will not update the server job log or write kpi data to the AS data
 lake. Instead kpi data is written to the local filesystem in csv form.
 '''
