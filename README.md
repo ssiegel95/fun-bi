@@ -51,71 +51,89 @@ Follow these steps to setup and run this Code Pattern.
 
 ### Install Python
 * Mac comes with Python v2.7.9  recommend using Python v3.6.5 for using DB2. Launch Terminal
-```Launchpad – Other – Terminal
+```
+Launchpad – Other – Terminal
 ```
 * Install Brew which is a package manager for Mac OS
-```/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)”
+```
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)”
 ```
 * Change directory to your virtual environment
-```brew install python3
+```
+brew install python3
 ```
 * Verify version of Python
-```python --version
+```
+python --version
 ```
 
 ### Install and Create a Virtual Environment
 * Launch Terminal
-```Launchpad – Other – Terminal
+```
+Launchpad – Other – Terminal
 ```
 * Install Pip. (Python Package Installer):
-```sudo easy_install pip
+```
+sudo easy_install pip
 ```
 * Install virtual environment to keep dependencies separate from other projects
-```sudo pip install virtualenv
+```
+sudo pip install virtualenv
 ```
 * Create a virtual environment
-```python3 -m venv /path_to_new/virtual_env
+```
+python3 -m venv /path_to_new/virtual_env
 ```
 
 ### Activate Virtual Environment, Install Python Dependencies and Verify Environment
 * Change directory to where you made a Virtual Environment
-```cd /path_to_new/virtual_env
+```
+cd /path_to_new/virtual_env
 ```
 * Activate your virtual environment
-```source bin/activate
+```
+source bin/activate
 ```
 * The result in Terminal should be something like:
-```(virtual_env) My-Mac: myuserid$
+```
+(virtual_env) My-Mac: myuserid$
 ```
 * Install dependencies in from requirements.txt file on next:
-```git clone
+```
+git clone
 cd fun-bi
 pip install -r requirements.txt
 ```
 * Install Watson IOT Functions dependencies:
-```pip install git+https://@github.com/ibm-watson-iot/functions.git@ --upgrade
+```
+pip install git+https://@github.com/ibm-watson-iot/functions.git@ --upgrade
 ```
 * Set PYTHONPATH to your project directory:
-```export PYTHONPATH="/Users/carlosferreira/Documents/workspace/fun-bi"
+```
+export PYTHONPATH="/Users/carlosferreira/Documents/workspace/fun-bi"
 ```
 * Verify that you can invoke local_test_of_function.py PYTHONPATH to your project directory:
-```python ./scripts/local_test_of_function.py
+```
+python ./scripts/local_test_of_function.py
 ```
 
 ## 2. Create an entity type
 
 * Copy template.env and modify it to reflect your Building Insights Credentials
-```cp ./custom/template.env ./custom/.env
+```
+cp ./custom/template.env ./custom/.env
 ```
 * Copy your Watson IOT Platform Service credentials into a credentials.json file
-```browse to your Watson IOT Platform Analytics service
+```
+browse to your Watson IOT Platform Analytics service
 https://dashboard-us.connectedproducts.internetofthings.ibmcloud.com/preauth?tenantid=Think-2019
 Explore > Usage > Watson IOT Platform Analytics > Copy to clipboard
 ```
-![credentials](watson_iot_credentials.png)
+![credentials](./images/watson_iot_credentials.png)
 
 * Modify your .custom/function.py to reflect your PACKAGE_URL to reflect your forked function Github repository:
-```PACKAGE_URL = 'git+https://github.com/fe01134/fun-bi@'
+```
+PACKAGE_URL = 'git+https://github.com/fe01134/fun-bi@'
 
 # Change the class name if someone else has already published a function with the same name in your tenant function catalog.
 
@@ -123,20 +141,23 @@ class BIAssetHTTPPreload(BasePreload):
 ```
 
 * Invoke local_test_of_function.py PYTHONPATH to create your :
-```python ./scripts/local_test_of_function.py
+```
+python ./scripts/local_test_of_function.py
 ```
 
 ## 3. Deploy Function
 
 * Push function code changes to Github.
-```git add ./custom/functions.py
+```
+git add ./custom/functions.py
 git commit -m "my function changes"
 git push origin master
 ```
 * Add function to your new Buildings Entity Type
-```Explore > Entity Types > Buildings > Add Data > Search on BIAssetHTTPPreload
 ```
-![Select function ](create_new_data.png)
+Explore > Entity Types > Buildings > Add Data > Search on BIAssetHTTPPreload
+```
+![Select function ](./images/create_new_data.png)
 
 * Set values for your Building Insights tenant and credentials or other IOT Device REST Service.
 ```
@@ -145,21 +166,24 @@ username	= enter your Building Insights user id
 password = enter your Building Insights password
 request  = Select Get from drop down
 ```
-![credentials](function-tenant.png)
+![credentials](./images/function-tenant.png)
 
 ## 4. Update Function
 * Push function code changes to Github.
-```git add ./custom/functions.py
+```
+git add ./custom/functions.py
 git commit -m "my function changes"
 git push origin master
 ```
 * Update function input arguments in your Buildings Entity Type
-```Explore > Entity Types > Buildings > output_item > configure > next > update
+```
+Explore > Entity Types > Buildings > output_item > configure > next > update
 ```
 
 ## 5. Create Dashboard
 * Import the dashboard layout file
-```Explore > Entity Types > Buildings > click gear top right > manage dashboards > import
+```
+Explore > Entity Types > Buildings > click gear top right > manage dashboards > import
 Choose file  ./json/Staging-Dashboard.json
 ```
 * Save changes
@@ -168,7 +192,8 @@ Choose file  ./json/Staging-Dashboard.json
 
 ## 6. View Dashboard
 * A new Dashboard tab should appear on each entity
-```Explore > Entity Types > Buildings > select an entity which is one of your buildings > Dashboard
+```
+Explore > Entity Types > Buildings > select an entity which is one of your buildings > Dashboard
 ```
 ![dashboard](./images/dashboard.png)
 
