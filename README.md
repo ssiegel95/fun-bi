@@ -140,7 +140,7 @@ PACKAGE_URL = 'git+https://github.com/fe01134/fun-bi@'
 class BIAssetHTTPPreload(BasePreload):
 ```
 
-* Invoke local_test_of_function.py PYTHONPATH to create your :
+* Invoke local_test_of_function.py PYTHONPATH to create your Buildings Entity Type and execute your BI_HTTPPreload function to get data from Building Insights:
 ```
 python ./scripts/local_test_of_function.py
 ```
