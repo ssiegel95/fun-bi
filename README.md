@@ -104,10 +104,7 @@ git clone
 cd fun-bi
 pip install -r requirements.txt
 ```
-* Install Watson IOT Functions dependencies:
-```
-pip install git+https://@github.com/ibm-watson-iot/functions.git@ --upgrade
-```
+
 * Set PYTHONPATH to your project directory:
 ```
 export PYTHONPATH="/Users/carlosferreira/Documents/workspace/fun-bi"
