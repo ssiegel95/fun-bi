@@ -4,7 +4,6 @@ ibm-cos-sdk-s3transfer==2.4.4
 ibm-db==3.0.1
 ibm-db-sa==0.3.4
 idna==2.8
-git+https://@github.com/ibm-watson-iot/functions.git
 ipykernel==5.1.0
 ipython==7.4.0
 ipython-genutils==0.2.0
@@ -43,3 +42,4 @@ sklearn==0.0
 SQLAlchemy==1.3.3
 web.py==0.40.dev1
 future
+git+https://github.com/ibm-watson-iot/functions.git@production_1_8
